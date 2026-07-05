@@ -1,0 +1,13 @@
+{
+  "name": "why-no-tools",
+  "version": "0.1.0",
+  "description": "Detect MCP servers that will fail on first run because npx cold-cache install exceeds Claude Code's 30s limit.",
+  "type": "module",
+  "bin": {
+    "why-no-tools": "bin/why-no-tools.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
