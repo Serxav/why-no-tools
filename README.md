@@ -13,10 +13,21 @@ downloads the package from scratch, and if that takes longer than Claude Code's
 ## Real measurement
 
 Run on a MacBook Pro (Apple Silicon, fast connection):
+
+    FAIL  ruflo — cold 50.7s, warm 22.6s (limit 25.0s)
+      Fix: pre-warm the cache before starting Claude Code:
+        npx -y ruflo@latest --version
+      or install it globally so npx never has to fetch it:
+        npm i -g ruflo@latest
+    OK    filesystem — cold 3.5s, warm 1.1s
+
 A 50-second cold install on a *fast* machine — any first-time user of a large
 MCP package hits the silent failure.
 
 ## Usage
+
+    node bin/why-no-tools.js
+
 Reads MCP servers from `~/.claude.json` and `./.mcp.json`, then times each
 npx-based server twice: with your normal cache (warm) and with a throwaway
 empty cache (cold — simulates a first-time install without touching your real
