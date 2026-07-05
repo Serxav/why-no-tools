@@ -1,13 +1,36 @@
 {
   "name": "why-no-tools",
   "version": "0.1.0",
-  "description": "Detect MCP servers that will fail on first run because npx cold-cache install exceeds Claude Code's 30s limit.",
+  "description": "Diagnose why your MCP server shows Connected but no tools appear in Claude Code. Detects npx cold-cache installs that exceed the 30s startup limit.",
   "type": "module",
   "bin": {
     "why-no-tools": "bin/why-no-tools.js"
   },
+  "files": [
+    "bin"
+  ],
   "engines": {
     "node": ">=18"
   },
-  "license": "MIT"
+  "keywords": [
+    "mcp",
+    "claude-code",
+    "claude",
+    "model-context-protocol",
+    "mcp-server",
+    "diagnostics",
+    "timeout",
+    "npx",
+    "troubleshooting"
+  ],
+  "author": "Serxav",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Serxav/why-no-tools.git"
+  },
+  "homepage": "https://github.com/Serxav/why-no-tools#readme",
+  "bugs": {
+    "url": "https://github.com/Serxav/why-no-tools/issues"
+  }
 }
