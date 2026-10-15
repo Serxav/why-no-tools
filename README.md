@@ -12,7 +12,7 @@ downloads the package from scratch, and if that takes longer than Claude Code's
 
 ## Real measurement
 
-Run on a MacBook Pro (Apple Silicon, fast connection):
+Run on a MacBook Pro Apple silicon
 
     FAIL  ruflo — cold 50.7s, warm 22.6s (limit 25.0s)
       Fix: pre-warm the cache before starting Claude Code:
