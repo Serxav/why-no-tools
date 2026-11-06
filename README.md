@@ -1,4 +1,4 @@
-# why-no-tools 🔍
+# why-no-tools 🔍 (UNDER CONSTRUCTION)
 
 **Your MCP server shows "Connected" — but no tools appear in Claude Code. This tool tells you why.**
 
