@@ -63,7 +63,13 @@ function timedNpxRun(pkg, { cacheDir } = {}) {
   });
   const elapsedMs = Date.now() - start;
 
-  return { elapsedMs, timedOut: result.error?.code === 'ETIMEDOUT' };
+  return {
+    elapsedMs,
+    timedOut: result.error?.code === 'ETIMEDOUT',
+    // Set when npx could not even be launched (e.g. ENOENT: npx not installed).
+    spawnError: result.error && result.error.code !== 'ETIMEDOUT' ? result.error.code : null,
+    exitCode: result.status,
+  };
 }
 
 // Step 3 (cold half): create a fresh temp dir for npm_config_cache so the
@@ -129,9 +135,19 @@ function checkServer(server, progress) {
   const coldLabel = cold.timedOut ? `>${formatSeconds(RUN_TIMEOUT_MS)} (timed out)` : formatSeconds(cold.elapsedMs);
   const isFail = cold.timedOut || cold.elapsedMs > COLD_LIMIT_MS;
 
+  // A run that errors out fast (package not found, npx missing...) would look
+  // like a very quick, healthy install. Say so instead of reporting a false OK.
+  // Not a FAIL: many servers exit non-zero on --version even though they installed fine.
+  let unreliable = null;
+  if (cold.spawnError) unreliable = `could not launch npx (${cold.spawnError})`;
+  else if (!cold.timedOut && cold.exitCode !== 0) unreliable = `npx exited with code ${cold.exitCode}`;
+
   if (isFail) {
     console.log(`FAIL  ${label} — cold ${coldLabel}, warm ${formatSeconds(warm.elapsedMs)} (limit ${formatSeconds(COLD_LIMIT_MS)})`);
     printFix(pkg);
+  } else if (unreliable) {
+    console.log(`WARN  ${label} — ${unreliable}, so the timing may not be reliable`);
+    if (!cold.spawnError) console.log(`  (the package may not exist, or it may not support --version)`);
   } else {
     console.log(`OK    ${label} — cold ${coldLabel}, warm ${formatSeconds(warm.elapsedMs)}`);
   }
