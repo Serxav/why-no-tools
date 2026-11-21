@@ -1,6 +1,6 @@
 {
   "name": "why-no-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Diagnose why your MCP server shows Connected but no tools appear in Claude Code. Detects npx cold-cache installs that exceed the 30s startup limit.",
   "type": "module",
   "bin": {
