@@ -18,8 +18,14 @@ function readMcpServers(path) {
     const raw = readFileSync(path, 'utf8');
     const json = JSON.parse(raw);
     return json.mcpServers || {};
-  } catch {
-    return {}; // missing file or unreadable/invalid JSON: treat as no servers here
+  } catch (err) {
+    // A missing file is normal (e.g. no ./.mcp.json in this folder). A file that
+    // exists but cannot be parsed is not: one stray comma makes Claude Code
+    // ignore every server in it, so say so instead of silently reporting none.
+    if (err.code !== 'ENOENT') {
+      console.error(`WARN  could not read ${path}: ${err.message}`);
+    }
+    return {};
   }
 }
 
