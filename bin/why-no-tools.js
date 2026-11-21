@@ -88,8 +88,16 @@ function printFix(pkg) {
   console.log(`    npm i -g ${pkg}`);
 }
 
+// Progress goes to stderr, BEFORE each slow step, so the user can see the tool
+// is working (a cold run of a big package can take a minute or more) while the
+// final report on stdout stays clean and easy to pipe.
+function progressStart(text) {
+  process.stderr.write(text);
+}
+
 // Step 4/5: run the check for one server and report OK/FAIL/skipped.
-function checkServer(server) {
+// `progress` ({ done, total }) only counts npx servers that are actually timed.
+function checkServer(server, progress) {
   const { name, source, config } = server;
   const label = `${name} (${source})`;
 
@@ -104,8 +112,16 @@ function checkServer(server) {
     return true;
   }
 
+  progress.done += 1;
+  const tag = `[${progress.done}/${progress.total}] ${name}`;
+
+  progressStart(`${tag} — warm run... `);
   const warm = timedNpxRun(pkg);
+  progressStart(`${formatSeconds(warm.elapsedMs)}\n`);
+
+  progressStart(`${tag} — cold run (downloads from scratch, may take a while)... `);
   const cold = timedColdRun(pkg);
+  progressStart(cold.timedOut ? 'timed out\n' : `${formatSeconds(cold.elapsedMs)}\n`);
 
   const coldLabel = cold.timedOut ? `>${formatSeconds(RUN_TIMEOUT_MS)} (timed out)` : formatSeconds(cold.elapsedMs);
   const isFail = cold.timedOut || cold.elapsedMs > COLD_LIMIT_MS;
@@ -129,9 +145,15 @@ function main() {
     process.exit(0);
   }
 
+  const progress = {
+    done: 0,
+    total: servers.filter((s) => s.config.command === 'npx').length,
+  };
+  console.error(`Found ${progress.total} npx server(s)`);
+
   let allSafe = true;
   for (const server of servers) {
-    const ok = checkServer(server);
+    const ok = checkServer(server, progress);
     if (!ok) allSafe = false;
   }
 
