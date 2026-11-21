@@ -26,7 +26,11 @@ MCP package hits the silent failure.
 
 ## Usage
 
-    node bin/why-no-tools.js
+    npx why-no-tools
+
+Run it from a project folder to include that project's `.mcp.json`. Progress
+is printed to stderr while it works (a cold run of a big package can take a
+minute or more); the report itself goes to stdout.
 
 Reads MCP servers from `~/.claude.json` and `./.mcp.json`, then times each
 npx-based server twice: with your normal cache (warm) and with a throwaway
@@ -36,9 +40,23 @@ cache). Verdict per server, with the exact fix when it would fail.
 - Read-only: never modifies your configs or your real npm cache
 - Zero dependencies, single file, Node 18+
 - Exit code 0 = all safe, 1 = something would fail (CI-friendly)
+- `WARN` means the timing is unreliable (e.g. npx exited with an error or is
+  not installed); it does not change the exit code
+- If a config file exists but is not valid JSON, the parse error is printed
+  instead of silently reporting "no servers"
+
+## Limitations
+
+- It times `npx -y <package> --version`, not a full MCP handshake. That
+  captures the download + startup cost, which is the usual culprit, but it is
+  an approximation of what Claude Code does.
+- Servers that ignore `--version` and start running instead will hit the
+  60s timeout and be reported as FAIL.
+- Results depend on your network and disk speed.
+- Only npx-based servers are checked; HTTP/SSE servers are skipped.
+- It only reads the top-level `mcpServers` key of each config file.
 
 ## Roadmap
 
-- npm publication (`npx why-no-tools`)
 - 64KB tools/list truncation check (ruvnet/ruflo#2426)
-- Config JSON validation with exact error location
+- Richer config validation (today: the parser's error message and position)
