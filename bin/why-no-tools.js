@@ -102,7 +102,10 @@ function checkServer(server, progress) {
   const label = `${name} (${source})`;
 
   if (config.command !== 'npx') {
-    console.log(`SKIP  ${label} — not an npx server (command: "${config.command}")`);
+    // Remote servers have no "command" (they use "type"/"url"); don't print the
+    // url, since it can carry tokens.
+    const what = config.command ? `command: "${config.command}"` : `type: "${config.type ?? 'unknown'}"`;
+    console.log(`SKIP  ${label} — not an npx server (${what})`);
     return true;
   }
 
